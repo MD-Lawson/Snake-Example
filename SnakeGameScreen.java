@@ -4,24 +4,29 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class SnakeGameScreen  extends JFrame {
+		boolean isFullScreen = false;
+		double gameSpeed = 1.0;
 		int squareTop[] = new int[1000]; //The array that stores the snakes Top value
 	    int squareLeft[] = new int[1000];//Array stores the snakes left value
 	    int direction = 0, timerstart = 0;
 	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	    int squareWidth = 30, squareHeight = squareWidth, frameHeight = 900, 
 	    		frameWidth = 1600, eatLeft = 300, eatTop = 300, score = 0, dots = 20,
-	    		programEnd = 0, timerdelay = 100; // Defines the snakes dimensions and size, frame dimensions, first pellet location
+	    		programEnd = 0, timerdelay = (int)Math.round(100*gameSpeed); // Defines the snakes dimensions and size, frame dimensions, first pellet location
 	    boolean replay = false;
 	    boolean cheat = false;
 	    boolean resize = false;
@@ -37,25 +42,38 @@ public class SnakeGameScreen  extends JFrame {
 	                repaint();
 	            }
 	        };
-	    public SnakeGameScreen(){
+	    public SnakeGameScreen(boolean fullScreen, double speed){
+	    	isFullScreen = fullScreen;
+	    	gameSpeed = 1/speed;
+	    	timerdelay = (int)Math.round(100*gameSpeed);
+	    	if(fullScreen) {
 	    	frameWidth = (int)screenSize.getWidth();
 	    	frameHeight = (int)screenSize.getHeight();
-	    	System.out.println("Screen width is " + screenSize.getWidth());
-	    	System.out.println("Screen height is " + screenSize.getHeight());
+	    	this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+	    	this.setSize((int)screenSize.getWidth(), (int)screenSize.getHeight());
+	        this.setUndecorated(true);
+	    	}else {
+	    		frameWidth= 800;
+	    		frameHeight = 800;
+	    	}
+	    	//System.out.println("Screen width is " + screenSize.getWidth());
+	    	//System.out.println("Screen height is " + screenSize.getHeight());
 	        squareLeft[0] = 180;//This is the snakes starting position with the 0 value being the snakes head.
 	        squareLeft[1] = 150;// as above
 	        squareLeft[2] = 120;// as above
 	        // Initialising the frame
-	        this.setSize((int)screenSize.getWidth(), (int)screenSize.getHeight());
+	        this.setSize(frameWidth, frameHeight);
 	        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        this.setResizable(resize);
-	        this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-	        this.setUndecorated(true);
 	        this.setTitle("Matt's Super Awesome Snake Game");
 	        this.setLocationRelativeTo(null);
 	        KeyBoardListen kl = new KeyBoardListen(); //Listens for keyboard keys
 	        this.addKeyListener(kl);
 	        this.add(new SnakeGamePanel());
+	        this.setCursor( this.getToolkit().createCustomCursor(
+	                   new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ),
+	                   new Point(),
+	                   null ) );
 	        this.setVisible(true);
 	    }
 	    public void eatPosition(){
@@ -224,7 +242,7 @@ public class SnakeGameScreen  extends JFrame {
 	                        if (reply == JOptionPane.YES_OPTION)
 	                        {
 	                            //If replay is chosen creates a new frame instance and ends the current one.
-	                            new SnakeGameScreen();// New frame instance
+	                            new SnakeGameScreen(isFullScreen, gameSpeed);// New frame instance
 	                            dispose();// Ends current instance
 	                        }else{
 	                            System.exit(0); // Ends program.
